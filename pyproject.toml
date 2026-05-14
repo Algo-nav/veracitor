@@ -1,0 +1,39 @@
+[tool.poetry]
+name = "veracitor"
+version = "0.1.0"
+description = "Hallucination detection for finance RAG systems"
+authors = ["Navneet Danturi <your_email_here>"]
+license = "MIT"
+readme = "README.md"
+homepage = "https://github.com/Algo-nav/veracitor"
+repository = "https://github.com/Algo-nav/veracitor"
+keywords = ["hallucination", "rag", "finance", "nlp", "evaluation"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3.12",
+]
+
+[tool.poetry.dependencies]
+python = "^3.12"
+anthropic = "^0.28.0"
+pydantic = "^2.12.5"
+transformers = "^4.41.0"
+torch = "^2.3.0"
+ragas = "^0.1.0"
+chromadb = "^0.5.0"
+requests = "^2.32.0"
+python-dotenv = "^1.0.0"
+pandas = "^2.2.0"
+numpy = "^1.26.0"
+gradio = "^4.0.0"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.0.0"
+jupyter = "^1.0.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

@@ -1,0 +1,25 @@
+# Environment
+.env
+venv/
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Data (generated, not source)
+data/corpus/
+data/benchmark/
+outputs/
+
+# Notebooks checkpoints
+.ipynb_checkpoints/
+
+# Build artifacts
+dist/
+build/
+*.egg-info/
+.eggs/
+
+# OS
+.DS_Store
