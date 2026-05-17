@@ -94,13 +94,18 @@ def search_transcript_url(ticker: str, quarter: str) -> str:
     response = client.search(
         query=query,
         max_results=5,
-        include_domains=["fool.com", "seekingalpha.com", "motleyfool.com"],
+        include_domains=["fool.com", "motleyfool.com"],
+        exclude_domains=["seekingalpha.com"],
     )
 
     results = response.get("results", [])
     if not results:
         # Retry without domain filter if no results
-        response = client.search(query=query, max_results=5)
+        response = client.search(
+        query=query,
+        max_results=5,
+        exclude_domains=["seekingalpha.com"],
+        )
         results = response.get("results", [])
 
     if not results:
