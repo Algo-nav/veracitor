@@ -128,7 +128,7 @@ def get_latest_filing(cik_padded: str, filing_type: str = "10-K") -> tuple[str, 
 def get_filing_text(cik_padded: str, accession_number: str) -> tuple[str, str]:
     """
     Fetch the primary document from a filing using the JSON index.
-    EDGAR provides a structured index.json for every filing.
+    Works for both 10-K and 485BPOS form types.
     Returns (text, filing_index_url).
     """
     accession_clean = accession_number.replace("-", "")
@@ -139,7 +139,6 @@ def get_filing_text(cik_padded: str, accession_number: str) -> tuple[str, str]:
         f"{cik_int}/{accession_clean}/{accession_number}-index.htm"
     )
 
-    # Use the JSON index for clean structured file list
     json_index_url = (
         f"https://www.sec.gov/Archives/edgar/data/"
         f"{cik_int}/{accession_clean}/index.json"
@@ -151,32 +150,38 @@ def get_filing_text(cik_padded: str, accession_number: str) -> tuple[str, str]:
 
     files = response.json().get("directory", {}).get("item", [])
 
-    # Find the primary 10-K document.
-    # It will have type "10-K" and be an .htm file.
-    # Prefer files whose name contains the ticker pattern (e.g. aapl-20250927.htm)
+    # Filter to .htm files only
+    htm_files = [f for f in files if f.get("name", "").endswith(".htm")]
+
+    # Skip known exhibit types
+    exhibit_keywords = ["ex-", "ex99", "consent", "opinion", "power", "certif"]
+
+    # Strategy 1: find file whose type matches known primary types
+    primary_types = {"10-K", "485BPOS", "N-1A", "S-1", "10-Q"}
     primary_doc = None
-    fallback_doc = None
-
-    for f in files:
-        name = f.get("name", "")
-        doc_type = f.get("type", "")
-
-        if not name.endswith(".htm"):
-            continue
-        if doc_type == "10-K":
-            primary_doc = name
+    for f in htm_files:
+        if f.get("type", "") in primary_types:
+            primary_doc = f.get("name")
             break
-        # Fallback: largest .htm that isn't an exhibit
-        if not name.startswith("R") and "ex" not in name.lower():
-            fallback_doc = name
 
-    chosen = primary_doc or fallback_doc
-    if not chosen:
-        raise ValueError(f"Could not find primary 10-K document in: {json_index_url}")
+    # Strategy 2: largest .htm that isn't an exhibit
+    if not primary_doc:
+        candidates = []
+        for f in htm_files:
+            name = f.get("name", "").lower()
+            if not any(kw in name for kw in exhibit_keywords):
+                size = int(f.get("size", 0))
+                candidates.append((size, f.get("name")))
+        if candidates:
+            candidates.sort(reverse=True)  # largest first
+            primary_doc = candidates[0][1]
+
+    if not primary_doc:
+        raise ValueError(f"Could not find primary document in: {json_index_url}")
 
     doc_url = (
         f"https://www.sec.gov/Archives/edgar/data/"
-        f"{cik_int}/{accession_clean}/{chosen}"
+        f"{cik_int}/{accession_clean}/{primary_doc}"
     )
 
     time.sleep(CRAWL_DELAY)
@@ -185,7 +190,6 @@ def get_filing_text(cik_padded: str, accession_number: str) -> tuple[str, str]:
 
     text = strip_html(doc_response.text)
     return text, index_url
-
 
 def fetch_10k(input_data: EdgarFetchInput) -> EdgarFetchOutput:
     """
