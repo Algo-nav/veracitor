@@ -7,10 +7,10 @@ def verify_keys():
     results = {}
 
     anthropic_key = os.getenv("ANTHROPIC_API_KEY")
-    if anthropic_key and not anthropic_key.startswith("your_"):
-        results["ANTHROPIC_API_KEY"] = "ok"
-    else:
-        results["ANTHROPIC_API_KEY"] = "missing or placeholder"
+    results["ANTHROPIC_API_KEY"] = "ok" if anthropic_key and not anthropic_key.startswith("your_") else "missing or placeholder"
+
+    tavily_key = os.getenv("TAVILY_API_KEY")
+    results["TAVILY_API_KEY"] = "ok" if tavily_key and not tavily_key.startswith("your_") else "missing or placeholder"
 
     print("\nKey verification results:")
     for key, status in results.items():
