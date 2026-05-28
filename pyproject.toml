@@ -35,7 +35,12 @@ twine = "^5.0.0"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+markers = [
+    "benchmark: benchmark tests requiring corpus data",
+    "benchmark_strict: strict benchmark tests for pre-publish verification",
+]
 
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
