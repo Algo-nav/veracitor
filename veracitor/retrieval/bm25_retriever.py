@@ -13,8 +13,8 @@ class RetrievalResult(BaseModel):
 
 
 class BM25RetrieverConfig(BaseModel):
-    top_k: int = 3              # number of chunks to retrieve
-    min_score: float = 0.0      # minimum BM25 score threshold
+    top_k: int = 3
+    min_score: float = -999.0
 
 
 def tokenize_for_bm25(text: str) -> list[str]:
